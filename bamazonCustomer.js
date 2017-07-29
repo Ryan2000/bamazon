@@ -32,11 +32,11 @@ function readProducts() {
         var ids = [];
         for (var i = 0; i < res.length; i++) {
             ids.push(res[i].item_ID.toString());
-            console.log(res[i].item_ID);
-            console.log(res[i].product_name);
-            console.log(res[i].department_name);
-            console.log(res[i].price);
-            console.log(res[i].stock_quantity);
+            console.log("Item ID: " + res[i].item_ID);
+            console.log("Produce Name: " + res[i].product_name);
+            console.log("Department: " + res[i].department_name);
+            console.log("Price: " + res[i].price);
+            console.log("Quantity: " + res[i].stock_quantity);
             console.log("-------------------------");
         }
         placeOrder(ids);
@@ -58,7 +58,7 @@ function placeOrder(ids) {
                 name: "selectedQuantity",
                 type: "input",
                 message: "Enter the desired quantity: ",
-                validate: function(value) {
+                validate: function (value) {
                     if (isNaN(value) === false) {
                         //console.log('valid');
                         return true;
@@ -67,32 +67,36 @@ function placeOrder(ids) {
                     return 'Please enter a number';
                 }
             }
-        ]).then(function(answer){
-            console.log(answer);
-            var query = connection.query(
-                "SELECT PRICE, STOCK_QUANTITY FROM PRODUCTS WHERE ?",
-                [
-                    {
-                        ITEM_ID: answer.itemId
-                    }
-                ],
-                function(err, res) {
-                    if(err) {
-                        throw err;
-                    }
-                    console.log(res);
+        ]).then(function (answer) {
+        console.log(answer);
+        var query = connection.query(
+            "SELECT PRICE, STOCK_QUANTITY FROM PRODUCTS WHERE ?",
+            [
+                {
+                    ITEM_ID: answer.itemId
+                }
+            ],
+            function (err, res) {
+                if (err) {
+                    throw err;
+                }
+                //console.log(res);  Raw Data Packet
 
-                    if(answer.selectedQuantity > res[0].STOCK_QUANTITY) {
-                        console.log("Insufficient Quantity");
+                if (answer.selectedQuantity > res[0].STOCK_QUANTITY) {
+                    console.log("Insufficient Quantity");
 
-                    } else {
-                        var newQuantity = res[0].STOCK_QUANTITY - answer.selectedQuantity;
+                } else {
+                    var newQuantity = res[0].STOCK_QUANTITY - answer.selectedQuantity;
                     console.log(newQuantity);
                     updateStockQuantity(answer.itemId, newQuantity);
 
-                    }
+                    var price = res[0].PRICE;
+                    var total = answer.selectedQuantity * price;
+                    console.log("Your total purchase price is: " + total);
+
                 }
-            );
+            }
+        );
     });
 }
 
@@ -109,7 +113,7 @@ function updateStockQuantity(itemID, newQuantity) {
             }
 
         ],
-        function(err, res) {
+        function (err, res) {
             if (err) {
                 throw err;
             }
